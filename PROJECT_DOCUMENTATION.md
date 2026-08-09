@@ -6,10 +6,8 @@
 
 - **GitHub Repository**: [https://github.com/mrvandana1/IBN/](https://github.com/mrvandana1/IBN/)
 - **Overleaf LaTeX Workspace**: [https://www.overleaf.com/8453838822mqqknqbkttzb#f0725f](https://www.overleaf.com/8453838822mqqknqbkttzb#f0725f)
-- **Local LaTeX Source**: [paper.tex](file:///home/mohan/Desktop/IBN/paper.tex)
-- **Mathematical Optimization Specification**: [ibn_slice_optimization.pdf](file:///home/mohan/Desktop/IBN/ibn_slice_optimization.pdf)
-- **Final Presentation Slides**: [ibn final ppt.pdf](file:///home/mohan/Desktop/IBN/ibn final ppt.pdf)
-- **5G Slicing Simulation Presentation**: [5G Slicing Presentation.pptx](file:///home/mohan/Desktop/IBN/5G-Network-Slicing/5G%20Slicing%20Presentation.pptx)
+- **Mathematical Optimization Specification**: [ibn_slice_optimization.pdf](file://ibn_slice_optimization.pdf)
+- **Final Presentation Slides**: [ibn final ppt.pdf](file://ibn final ppt.pdf)
 
 ---
 
