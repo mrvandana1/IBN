@@ -1,0 +1,187 @@
+settings:
+  simulation_time: 10
+  num_clients: 500
+  limit_closest_base_stations: 7
+  logging: true
+  log_file: output.txt
+
+  plotting_params:
+    plotting: true
+    plot_file: output.png
+    plot_file_dpi: 1000
+    plot_save: true
+    plot_show: true
+    scatter_size: 15
+
+  statistics_params:
+    warmup_ratio: 0.05
+    cooldown_ratio: 0.05
+    x:
+      min: 0
+      max: 1980
+    y:
+      min: 0
+      max: 1980
+
+
+# --------------------------------------------------
+# BASE STATIONS (heterogeneous on purpose)
+# --------------------------------------------------
+base_stations:
+  - capacity_bandwidth: 1000000
+    coverage: 600
+    ratios:
+      video_slice_unknown: 0.25
+      gaming_slice_slice_6934aa79: 0.25
+      video_slice_slice_0267af04: 0.25
+      gaming_slice_slice_9b4cd211: 0.25
+    x: 0
+    y: 0
+
+  - capacity_bandwidth: 1400000
+    coverage: 700
+    ratios:
+      video_slice_unknown: 0.25
+      gaming_slice_slice_6934aa79: 0.25
+      video_slice_slice_0267af04: 0.25
+      gaming_slice_slice_9b4cd211: 0.25
+    x: 1000
+    y: 500
+
+  - capacity_bandwidth: 700000
+    coverage: 500
+    ratios:
+      video_slice_unknown: 0.25
+      gaming_slice_slice_6934aa79: 0.25
+      video_slice_slice_0267af04: 0.25
+      gaming_slice_slice_9b4cd211: 0.25
+    x: -500
+    y: -500
+
+  - capacity_bandwidth: 1200000
+    coverage: 800
+    ratios:
+      video_slice_unknown: 0.25
+      gaming_slice_slice_6934aa79: 0.25
+      video_slice_slice_0267af04: 0.25
+      gaming_slice_slice_9b4cd211: 0.25
+    x: -750
+    y: 850
+
+  - capacity_bandwidth: 1000000
+    coverage: 900
+    ratios:
+      video_slice_unknown: 0.25
+      gaming_slice_slice_6934aa79: 0.25
+      video_slice_slice_0267af04: 0.25
+      gaming_slice_slice_9b4cd211: 0.25
+    x: 450
+    y: -950
+
+  # ---- intentionally WEAK base stations (block + handover trigger) ----
+  - capacity_bandwidth: 120000
+    coverage: 350
+    ratios:
+      video_slice_unknown: 0.40
+      gaming_slice_slice_6934aa79: 0.30
+      video_slice_slice_0267af04: 0.20
+      gaming_slice_slice_9b4cd211: 0.10
+    x: -1300
+    y: -1300
+
+  - capacity_bandwidth: 100000
+    coverage: 300
+    ratios:
+      video_slice_unknown: 0.40
+      gaming_slice_slice_6934aa79: 0.30
+      video_slice_slice_0267af04: 0.20
+      gaming_slice_slice_9b4cd211: 0.10
+    x: 1100
+    y: 1300
+
+
+# --------------------------------------------------
+# CLIENT MODEL
+# --------------------------------------------------
+clients:
+  location:
+    x:
+      distribution: normal
+      params: [0, 600]
+    y:
+      distribution: normal
+      params: [0, 600]
+
+  usage:
+    distribution: randint
+    params: [0, 100000]
+
+  # bursty request behavior (forces congestion)
+  usage_frequency:
+    distribution: randint
+    divide_scale: 200000
+    params: [0, 100000]
+
+
+# --------------------------------------------------
+# MOBILITY (handover amplifier)
+# --------------------------------------------------
+mobility_patterns:
+  basic:
+    client_weight: 0.5
+    distribution: randint
+    params: [-5, 5]
+
+  normal_btw_0_1000:
+    client_weight: 0.5
+    distribution: normal
+    params: [0, 8]
+
+
+# --------------------------------------------------
+# SLICES (strict SLA = blocks)
+# --------------------------------------------------
+slices:
+  video_slice_unknown:
+    bandwidth_guaranteed: 3000
+    bandwidth_max: 50000
+    client_weight: 0.5
+    delay_tolerance: 5
+    qos_class: 3
+    threshold: 0.99
+    usage_pattern:
+      distribution: randint
+      params: [4000000, 800000000]
+
+  gaming_slice_slice_6934aa79:
+    bandwidth_guaranteed: 2000
+    bandwidth_max: 25000
+    client_weight: 0.5
+    delay_tolerance: 5
+    qos_class: 3
+    threshold: 0.99999
+    usage_pattern:
+      distribution: randint
+      params: [4000000, 800000000]
+
+  video_slice_slice_0267af04:
+    bandwidth_guaranteed: 2500
+    bandwidth_max: 30000
+    client_weight: 0.5
+    delay_tolerance: 5
+    qos_class: 3
+    threshold: 0.99999
+    usage_pattern:
+      distribution: randint
+      params: [4000000, 800000000]
+
+  gaming_slice_slice_9b4cd211:
+    bandwidth_guaranteed: 1800
+    bandwidth_max: 20000
+    client_weight: 0.5
+    delay_tolerance: 5
+    qos_class: 3
+    threshold: 0.99999
+    usage_pattern:
+      distribution: randint
+      params: [4000000, 800000000]

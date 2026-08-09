@@ -1,0 +1,358 @@
+# version: "3.1"
+
+# nlu:
+# - intent: request_slice
+#   examples: |
+#     - I need a slice for [gaming](service_type) with [150 Mbps](bandwidth), [20 ms](latency), [99.99%](reliability) reliability, lasting [2 hours](duration)
+#     - I want a slice for [video](service_type) that needs [300 Mbps](bandwidth), [5 ms](latency), [99.999%](reliability) and will run for [3 hours](duration)
+#     - Create a slice for [IoT](service_type) with [80 Mbps](bandwidth), [50 ms](latency), [95%](reliability) reliability for [5 hours](duration)
+#     - Reserve a network slice for [augmented reality](service_type) needing [500 Mbps](bandwidth), [2 ms](latency), [99.999%](reliability) for [1 hour](duration)
+#     - Make a slice for [autonomous vehicles](service_type) that requires [200 Mbps](bandwidth), [10 ms](latency), [99.9999%](reliability), duration [4 hours](duration)
+#     - Set up a slice for [gaming](service_type) with [120 Mbps](bandwidth), [15 ms](latency), [99.95%](reliability), valid for [6 hours](duration)
+#     - Allocate [300 Mbps](bandwidth) for [video](service_type) with [8 ms](latency) latency and [99.9%](reliability) reliability, lasting [2 hours](duration)
+#     - I want [100 Mbps](bandwidth) bandwidth, [10 ms](latency) latency, [99.999%](reliability) reliability for [video streaming](service_type) for [2 hours](duration)
+#     - Please create a slice with [250 Mbps](bandwidth), [12 ms](latency), [99.98%](reliability) for [cloud gaming](service_type) over [3 hours](duration)
+#     - A slice for [IoT sensors](service_type) that lasts [8 hours](duration), [20 ms](latency), [95%](reliability), and [90 Mbps](bandwidth)
+#     - Set up a [video](service_type) slice needing [275 Mbps](bandwidth), [7 ms](latency), [99.999%](reliability), lasting [1.5 hours](duration)
+#     - For [industrial automation](service_type), I need [180 Mbps](bandwidth), [4 ms](latency), [99.999%](reliability) uptime for [6 hours](duration)
+#     - I want a slice for [video](service_type) with [300 Mbps](bandwidth), [5 ms](latency), [99.999%](reliability) reliability for [3 hours](duration)
+#     - Create a slice for [gaming](service_type) that uses [100 Mbps](bandwidth), has [10 ms](latency) delay, [99.99%](reliability) and lasts [2 hours](duration)
+
+
+# - intent: greet
+#   examples: |
+#     - hey
+#     - hello
+#     - hi
+#     - hello there
+#     - good morning
+#     - good evening
+#     - moin
+#     - hey there
+#     - let's go
+#     - hey dude
+#     - goodmorning
+#     - goodevening
+#     - good afternoon
+
+# - intent: goodbye
+#   examples: |
+#     - cu
+#     - good by
+#     - cee you later
+#     - good night
+#     - bye
+#     - goodbye
+#     - have a nice day
+#     - see you around
+#     - bye bye
+#     - see you later
+# - intent: confirm_yes
+#   examples: |
+#     - yes
+#     - proceed
+#     - okay do it
+#     - go ahead
+#     - confirm
+
+# - intent: confirm_no
+#   examples: |
+#     - no
+#     - cancel
+#     - stop
+#     - don’t do it
+#     - reject
+
+
+# - intent: delete_specific_slice
+#   examples: |
+#     - delete the slice [slice_mod_high](slice_id)
+#     - delete slice [slice_delete_safe](slice_id)
+#     - delete slice [slice_delete_busy](slice_id)
+#     - remove slice [slice_mod_high](slice_id)
+#     - remove slice [slice_mod_low](slice_id)
+
+
+# - lookup: slice_id
+#   examples: |
+#     - slice_reuse1
+#     - slice_mod_high
+#     - slice_mod_low
+#     - slice_delete_safe
+#     - slice_delete_busy
+# - intent: modify_specific_slice
+#   examples: |
+#     - modify slice [slice_mod_high](slice_id) bandwidth to [150 Mbps](new_value)
+#     - modify slice [slice_mod_low](slice_id) bandwidth to [20 Mbps](new_value)
+#     - modify slice [slice_mod_high](slice_id) [bandwidth](parameter_to_modify) to [200 Mbps](new_value)
+#     - modify slice [slice_abcd1234](slice_id) [latency](parameter_to_modify) to [5 ms](new_value)
+#     - modify slice [slice_d15e9831](slice_id) [reliability](parameter_to_modify) to [99.99%](new_value)
+#     - change [bandwidth](parameter_to_modify) of slice [slice_mod_high](slice_id) to [500 Mbps](new_value)
+#     - change [latency](parameter_to_modify) of slice [slice_abcd1234](slice_id) to [2 ms](new_value)
+#     - update slice [slice_mod_high](slice_id) [duration](parameter_to_modify) to [3 hours](new_value)
+#     - update slice [slice_abcd1234](slice_id) [service_type](parameter_to_modify) to [gaming](new_value)
+#     - modify [slice_mod_high](slice_id) [bandwidth](parameter_to_modify) [400 Mbps](new_value)
+#     - change slice [slice_abcd1234](slice_id) [reliability](parameter_to_modify) [99.999%](new_value)
+#     - update [bandwidth](parameter_to_modify) for slice [slice_mod_high](slice_id) to [300 Mbps](new_value)
+
+
+
+# - intent: mood_great
+#   examples: |
+#     - perfect
+#     - great
+#     - amazing
+#     - feeling like a king
+#     - wonderful
+#     - I am feeling very good
+#     - I am great
+#     - I am amazing
+#     - I am going to save the world
+#     - super stoked
+#     - extremely good
+#     - so so perfect
+#     - so good
+#     - so perfect
+
+# - intent: mood_unhappy
+#   examples: |
+#     - my day was horrible
+#     - I am sad
+#     - I don't feel very well
+#     - I am disappointed
+#     - super sad
+#     - I'm so sad
+#     - sad
+#     - very sad
+#     - unhappy
+#     - not good
+#     - not very good
+#     - extremly sad
+#     - so saad
+#     - so sad
+
+# - intent: bot_challenge
+#   examples: |
+#     - are you a bot?
+#     - are you a human?
+#     - am I talking to a bot?
+#     - am I talking to a human?
+
+# - regex: slice_id
+#   examples: |
+#     - slice_[a-zA-Z0-9_]+
+# - regex: reliability
+#   examples: |
+#     - \d{2}\.\d{3,4}%
+
+# - regex: latency
+#   examples: |
+#     - \d+\s?ms
+
+# - regex: bandwidth
+#   examples: |
+#     - \d+\s?Mbps
+
+# - regex: duration
+#   examples: |
+#     - \d+(\.\d+)?\s?(hours|hour)
+
+
+version: "3.1"
+
+nlu:
+
+# ─────────────────────────────────────────────────────────
+# SLICE OPERATIONS
+# ─────────────────────────────────────────────────────────
+
+- intent: request_slice
+  examples: |
+    - I need a slice for [gaming](service_type) with [150 Mbps](bandwidth), [20 ms](latency), [99.99%](reliability) reliability, lasting [2 hours](duration)
+    - I want a slice for [video](service_type) that needs [300 Mbps](bandwidth), [5 ms](latency), [99.999%](reliability) and will run for [3 hours](duration)
+    - Create a slice for [IoT](service_type) with [80 Mbps](bandwidth), [50 ms](latency), [95%](reliability) reliability for [5 hours](duration)
+    - Reserve a network slice for [augmented reality](service_type) needing [500 Mbps](bandwidth), [2 ms](latency), [99.999%](reliability) for [1 hour](duration)
+    - Make a slice for [autonomous vehicles](service_type) that requires [200 Mbps](bandwidth), [10 ms](latency), [99.9999%](reliability), duration [4 hours](duration)
+    - Set up a slice for [gaming](service_type) with [120 Mbps](bandwidth), [15 ms](latency), [99.95%](reliability), valid for [6 hours](duration)
+    - Allocate [300 Mbps](bandwidth) for [video](service_type) with [8 ms](latency) latency and [99.9%](reliability) reliability, lasting [2 hours](duration)
+    - I want [100 Mbps](bandwidth) bandwidth, [10 ms](latency) latency, [99.999%](reliability) reliability for [video streaming](service_type) for [2 hours](duration)
+    - Please create a slice with [250 Mbps](bandwidth), [12 ms](latency), [99.98%](reliability) for [cloud gaming](service_type) over [3 hours](duration)
+    - A slice for [IoT sensors](service_type) that lasts [8 hours](duration), [20 ms](latency), [95%](reliability), and [90 Mbps](bandwidth)
+    - Set up a [video](service_type) slice needing [275 Mbps](bandwidth), [7 ms](latency), [99.999%](reliability), lasting [1.5 hours](duration)
+    - For [industrial automation](service_type), I need [180 Mbps](bandwidth), [4 ms](latency), [99.999%](reliability) uptime for [6 hours](duration)
+    - I want a slice for [video](service_type) with [300 Mbps](bandwidth), [5 ms](latency), [99.999%](reliability) reliability for [3 hours](duration)
+    - Create a slice for [gaming](service_type) that uses [100 Mbps](bandwidth), has [10 ms](latency) delay, [99.99%](reliability) and lasts [2 hours](duration)
+
+- intent: delete_specific_slice
+  examples: |
+    - delete the slice [slice_mod_high](slice_id)
+    - delete slice [slice_delete_safe](slice_id)
+    - delete slice [slice_delete_busy](slice_id)
+    - remove slice [slice_mod_high](slice_id)
+    - remove slice [slice_mod_low](slice_id)
+    - I want to delete slice [slice_reuse1](slice_id)
+    - please remove slice [slice_mod_low](slice_id)
+
+- intent: modify_specific_slice
+  examples: |
+    - modify slice [slice_mod_high](slice_id) bandwidth to [150 Mbps](new_value)
+    - modify slice [slice_mod_low](slice_id) bandwidth to [20 Mbps](new_value)
+    - modify slice [slice_mod_high](slice_id) [bandwidth](parameter_to_modify) to [200 Mbps](new_value)
+    - modify slice [slice_abcd1234](slice_id) [latency](parameter_to_modify) to [5 ms](new_value)
+    - modify slice [slice_d15e9831](slice_id) [reliability](parameter_to_modify) to [99.99%](new_value)
+    - change [bandwidth](parameter_to_modify) of slice [slice_mod_high](slice_id) to [500 Mbps](new_value)
+    - change [latency](parameter_to_modify) of slice [slice_abcd1234](slice_id) to [2 ms](new_value)
+    - update slice [slice_mod_high](slice_id) [duration](parameter_to_modify) to [3 hours](new_value)
+    - update slice [slice_abcd1234](slice_id) [service_type](parameter_to_modify) to [gaming](new_value)
+    - modify [slice_mod_high](slice_id) [bandwidth](parameter_to_modify) [400 Mbps](new_value)
+    - change slice [slice_abcd1234](slice_id) [reliability](parameter_to_modify) [99.999%](new_value)
+    - update [bandwidth](parameter_to_modify) for slice [slice_mod_high](slice_id) to [300 Mbps](new_value)
+
+# ─────────────────────────────────────────────────────────
+# CONFIRMATIONS
+# Keep these simple and distinct so NLU never confuses them
+# with other intents.
+# ─────────────────────────────────────────────────────────
+
+- intent: confirm_yes
+  examples: |
+    - yes
+    - y
+    - yep
+    - yup
+    - ok
+    - okay
+    - sure
+    - go ahead
+    - proceed
+    - confirm
+    - do it
+    - sounds good
+    - that's fine
+    - affirmative
+
+- intent: confirm_no
+  examples: |
+    - no
+    - n
+    - nope
+    - cancel
+    - stop
+    - don't do it
+    - reject
+    - abort
+    - don't
+    - dont
+    - nevermind
+    - never mind
+    - skip it
+
+# ─────────────────────────────────────────────────────────
+# GENERAL CONVERSATION
+# ─────────────────────────────────────────────────────────
+
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremely sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+# ─────────────────────────────────────────────────────────
+# LOOKUP TABLE
+# ─────────────────────────────────────────────────────────
+
+- lookup: slice_id
+  examples: |
+    - slice_reuse1
+    - slice_mod_high
+    - slice_mod_low
+    - slice_delete_safe
+    - slice_delete_busy
+
+# ─────────────────────────────────────────────────────────
+# REGEX PATTERNS  (used as supporting features for entity extraction)
+# ─────────────────────────────────────────────────────────
+
+- regex: slice_id
+  examples: |
+    - slice_[a-zA-Z0-9_]+
+
+- regex: reliability
+  examples: |
+    - \d{2,3}\.?\d*%
+
+- regex: latency
+  examples: |
+    - \d+\s?ms
+
+- regex: bandwidth
+  examples: |
+    - \d+\s?Mbps
+
+- regex: duration
+  examples: |
+    - \d+(\.\d+)?\s?(hours|hour)

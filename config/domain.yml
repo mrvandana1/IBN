@@ -1,0 +1,167 @@
+version: "3.1"
+
+intents:
+  - request_slice
+  - greet
+  - goodbye
+  # - affirm
+  # - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - delete_specific_slice
+  - modify_specific_slice   # Add this line
+  - confirm_yes
+  - confirm_no
+
+
+entities:
+  - bandwidth
+  - latency
+  - reliability
+  - duration
+  - service_type
+  - slice_id          # Add this line
+  - parameter_to_modify    # Add this line
+  - new_value
+# slots:
+#   pending_action:
+#     type: text
+#     influence_conversation: false
+
+#   pending_payload:
+#     type: text
+#     influence_conversation: false
+
+slots:
+  pending_decision:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+
+  target_slice_id:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  slice_id:          # From here 
+    type: text
+    mappings:
+      - type: from_entity
+        entity: slice_id
+
+  parameter_to_modify:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: parameter_to_modify
+
+  new_value:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: new_value     # Till here
+
+  bandwidth:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: bandwidth
+
+  latency:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: latency
+
+  reliability:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: reliability
+
+  duration:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: duration
+
+  service_type:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: service_type
+
+  slice_created:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+forms:
+  slice_request_form:
+    required_slots:
+      - bandwidth
+      - latency
+      - reliability
+      - duration
+      - service_type
+
+responses:
+  utter_greet:
+    - text: "Hello! I'm your Network Slicing Assistant. How can I help you today?"
+
+  utter_cheer_up:
+    - text: "Here is something to cheer you up:"
+      image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+    - text: "Did that help you?"
+
+  utter_happy:
+    - text: "Great, carry on!"
+
+  utter_goodbye:
+    - text: "Goodbye! Feel free to reach out if you need a slice again."
+
+  utter_ask_bandwidth:
+    - text: "What bandwidth do you need for the slice (e.g., 100 Mbps)?"
+
+  utter_ask_latency:
+    - text: "What is your desired latency (e.g., 10 ms)?"
+
+  utter_ask_reliability:
+    - text: "What reliability level is required (e.g., 99.999%)?"
+
+  utter_ask_duration:
+    - text: "How long do you want this slice to be active (e.g., 2 hours)?"
+
+  utter_ask_service_type:
+    - text: "What kind of service will the slice be used for (e.g., video, IoT, gaming)?"
+
+  utter_submit:
+    - text: "Thanks! I’m processing your slice request now."
+
+  utter_slots_values:
+    - text: |
+        Here's the slice summary:
+        - Bandwidth: {bandwidth}
+        - Latency: {latency}
+        - Reliability: {reliability}
+        - Duration: {duration}
+        - Service Type: {service_type}
+
+  utter_iamabot:
+    - text: "I am a bot, powered by Rasa."
+
+actions:
+  - action_submit_slice
+  - action_delete_specific_slice
+  - action_modify_specific_slice   # Add this line
+  - action_handle_confirmation  
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

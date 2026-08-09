@@ -1,0 +1,132 @@
+# version: "3.1"
+
+# rules:
+
+# - rule: Activate slice request form
+#   steps:
+#     - intent: request_slice
+#     - action: slice_request_form
+#     - active_loop: slice_request_form
+
+# - rule: Submit slice request form
+#   condition:
+#     - active_loop: slice_request_form
+#   steps:
+#     - action: slice_request_form
+#     - active_loop: null
+#     - action: utter_slots_values
+#     - action: utter_submit
+#     - action: action_submit_slice
+
+# - rule: Handle slice modification
+#   steps:
+#   - intent: modify_specific_slice
+#   - action: action_modify_specific_slice
+
+# - rule: Handle slice deletion
+#   steps:
+#   - intent: delete_specific_slice
+#   - action: action_delete_specific_slice
+
+# - rule: Say goodbye anytime the user says goodbye
+#   steps:
+#     - intent: goodbye
+#     - action: utter_goodbye
+
+# - rule: Say "I am a bot" when the user challenges
+#   steps:
+#     - intent: bot_challenge
+#     - action: utter_iamabot
+
+# - rule: Confirm create or merge slice
+#   condition:
+#     - slot_was_set:
+#         - pending_decision
+#   steps:
+#     - intent: confirm_yes
+#     - action: action_submit_slice
+
+# - rule: Reject create or merge slice
+#   condition:
+#     - slot_was_set:
+#         - pending_decision
+#   steps:
+#     - intent: confirm_no
+#     - action: action_submit_slice
+version: "3.1"
+
+rules:
+
+# ─────────────────────────────────────────────────────────
+# SLICE REQUEST FORM
+# ─────────────────────────────────────────────────────────
+
+- rule: Activate slice request form
+  steps:
+    - intent: request_slice
+    - action: slice_request_form
+    - active_loop: slice_request_form
+
+- rule: Submit slice request form
+  condition:
+    - active_loop: slice_request_form
+  steps:
+    - action: slice_request_form
+    - active_loop: null
+    - action: utter_slots_values
+    - action: utter_submit
+    - action: action_submit_slice
+
+# ─────────────────────────────────────────────────────────
+# SLICE OPERATIONS — initiation rules
+# ─────────────────────────────────────────────────────────
+
+- rule: Handle slice modification
+  steps:
+    - intent: modify_specific_slice
+    - action: action_modify_specific_slice
+
+- rule: Handle slice deletion
+  steps:
+    - intent: delete_specific_slice
+    - action: action_delete_specific_slice
+
+# ─────────────────────────────────────────────────────────
+# CONFIRMATION — single dispatcher handles all pending states
+#
+# Rasa RulePolicy cannot differentiate between rules that share
+# the same intent → different action pattern, even with slot
+# value conditions.  The solution is ONE rule per yes/no that
+# always calls action_handle_confirmation, which reads
+# pending_decision internally and delegates to the right action.
+# ─────────────────────────────────────────────────────────
+
+- rule: User confirms pending action
+  condition:
+    - slot_was_set:
+        - pending_decision
+  steps:
+    - intent: confirm_yes
+    - action: action_handle_confirmation
+
+- rule: User rejects pending action
+  condition:
+    - slot_was_set:
+        - pending_decision
+  steps:
+    - intent: confirm_no
+    - action: action_handle_confirmation
+
+# ─────────────────────────────────────────────────────────
+# GENERAL
+# ─────────────────────────────────────────────────────────
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+    - intent: goodbye
+    - action: utter_goodbye
+
+- rule: Say "I am a bot" when the user challenges
+  steps:
+    - intent: bot_challenge
+    - action: utter_iamabot

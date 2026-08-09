@@ -1,0 +1,127 @@
+# version: "3.1"
+
+# stories:
+
+# - story: user modifies a slice
+#   steps:
+#   - intent: modify_specific_slice
+#   - action: action_modify_specific_slice
+
+# - story: happy path
+#   steps:
+#   - intent: greet
+#   - action: utter_greet
+#   - intent: mood_great
+#   - action: utter_happy
+
+# - story: happy slice path
+#   steps:
+#   - intent: request_slice
+#   - action: slice_request_form
+#   - active_loop: slice_request_form
+#   - active_loop: null
+#   - action: utter_slots_values
+#   - action: utter_submit
+#   - action: action_submit_slice
+
+
+# - story: delete specific slice
+#   steps:
+#   - intent: delete_specific_slice
+#   - action: action_delete_specific_slice
+
+
+version: "3.1"
+
+stories:
+
+# ─────────────────────────────────────────────────────────
+# GREETING / MOOD
+# ─────────────────────────────────────────────────────────
+
+- story: happy path
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: mood_great
+    - action: utter_happy
+
+- story: unhappy path
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: mood_unhappy
+    - action: utter_cheer_up
+    - action: utter_did_that_help
+    - intent: mood_great
+    - action: utter_happy
+
+# ─────────────────────────────────────────────────────────
+# CREATE SLICE
+# Phase 1: action_submit_slice  (sets pending_decision)
+# Phase 2: action_handle_confirmation  (acts on yes/no)
+# ─────────────────────────────────────────────────────────
+
+- story: create slice - user confirms
+  steps:
+    - intent: request_slice
+    - action: slice_request_form
+    - active_loop: slice_request_form
+    - active_loop: null
+    - action: utter_slots_values
+    - action: utter_submit
+    - action: action_submit_slice
+    - intent: confirm_yes
+    - action: action_handle_confirmation
+
+- story: create slice - user cancels
+  steps:
+    - intent: request_slice
+    - action: slice_request_form
+    - active_loop: slice_request_form
+    - active_loop: null
+    - action: utter_slots_values
+    - action: utter_submit
+    - action: action_submit_slice
+    - intent: confirm_no
+    - action: action_handle_confirmation
+
+# ─────────────────────────────────────────────────────────
+# MODIFY SLICE
+# Phase 1: action_modify_specific_slice  (sets pending_decision = 'modify')
+# Phase 2: action_handle_confirmation
+# ─────────────────────────────────────────────────────────
+
+- story: modify slice - user confirms
+  steps:
+    - intent: modify_specific_slice
+    - action: action_modify_specific_slice
+    - intent: confirm_yes
+    - action: action_handle_confirmation
+
+- story: modify slice - user cancels
+  steps:
+    - intent: modify_specific_slice
+    - action: action_modify_specific_slice
+    - intent: confirm_no
+    - action: action_handle_confirmation
+
+# ─────────────────────────────────────────────────────────
+# DELETE SLICE
+# Phase 1: action_delete_specific_slice  (sets pending_decision = 'delete')
+# Phase 2: action_handle_confirmation
+# ─────────────────────────────────────────────────────────
+
+- story: delete slice - user confirms
+  steps:
+    - intent: delete_specific_slice
+    - action: action_delete_specific_slice
+    - intent: confirm_yes
+    - action: action_handle_confirmation
+
+- story: delete slice - user cancels
+  steps:
+    - intent: delete_specific_slice
+    - action: action_delete_specific_slice
+    - intent: confirm_no
+    - action: action_handle_confirmation

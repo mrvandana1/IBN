@@ -1,0 +1,964 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Slice Dashboard</title>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+        }
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        canvas {
+            background: white;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>📊 Live Slice Dashboard</h2>
+
+    <div class="container">
+        <div class="card">
+            <h3>Load Ratio</h3>
+            <canvas id="loadChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Success Rate</h3>
+            <canvas id="successChart"></canvas>
+        </div>
+    </div>
+
+<script>
+const socket = io();
+
+let loadChart = new Chart(document.getElementById("loadChart"), {
+    type: "bar",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Load",
+            data: []
+        }]
+    }
+});
+
+let successChart = new Chart(document.getElementById("successChart"), {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Success",
+            data: []
+        }]
+    }
+});
+
+socket.on("update", function(data) {
+    const labels = data.map(d => d.name);
+    const load = data.map(d => d.load);
+    const success = data.map(d => d.success);
+
+    loadChart.data.labels = labels;
+    loadChart.data.datasets[0].data = load;
+    loadChart.update();
+
+    successChart.data.labels = labels;
+    successChart.data.datasets[0].data = success;
+    successChart.update();
+});
+</script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RASA Slice Dashboard</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #080c10;
+      --surface:   #0e1420;
+      --border:    #1c2636;
+      --border2:   #243044;
+      --text:      #c8d8f0;
+      --muted:     #4a6080;
+      --accent:    #00d4ff;
+      --accent2:   #0099cc;
+      --green:     #00e676;
+      --yellow:    #ffd740;
+      --red:       #ff5252;
+      --purple:    #b388ff;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-icon::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--green);
+      letter-spacing: 0.08em;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,230,118,0.4); }
+      50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(0,230,118,0); }
+    }
+
+    .header-clock {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      position: relative;
+      z-index: 1;
+      padding: 24px 28px;
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent-color, var(--accent));
+    }
+
+    .stat-card:hover { border-color: var(--border2); }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-value span {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .stat-delta {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    /* ── CONTROLS ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .controls-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .filter-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    .filter-btn.active {
+      background: rgba(0,212,255,0.12);
+      border-color: var(--accent2);
+      color: var(--accent);
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-left: auto;
+    }
+
+    .search-wrap input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px 6px 32px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent2); }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ── TABLE PANEL ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .panel-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .panel-count strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── DATA TABLE ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      padding: 11px 20px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .data-table th:hover { color: var(--text); }
+    .data-table th .sort { margin-left: 4px; opacity: 0.4; font-size: 9px; }
+    .data-table th.sorted .sort { opacity: 1; color: var(--accent); }
+
+    /* Visibility filter: show/hide columns */
+    .col-bw      { }
+    .col-load    { }
+    .col-success { }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid rgba(28,38,54,0.5);
+      transition: background 0.12s;
+      animation: rowIn 0.3s ease both;
+    }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(0,212,255,0.04);
+    }
+
+    .data-table tbody tr:last-child { border-bottom: none; }
+
+    .data-table td {
+      padding: 13px 20px;
+      vertical-align: middle;
+    }
+
+    /* Slice name cell */
+    .slice-name {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slice-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Numeric value */
+    .num-cell {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    /* Load bar */
+    .load-cell {
+      min-width: 160px;
+    }
+
+    .load-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .load-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      min-width: 42px;
+      text-align: right;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* Success chip */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    .chip-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .chip.ok  { background: rgba(0,230,118,0.12); color: var(--green); }
+    .chip.ok .chip-dot  { background: var(--green); }
+    .chip.warn { background: rgba(255,215,64,0.12); color: var(--yellow); }
+    .chip.warn .chip-dot { background: var(--yellow); }
+    .chip.fail { background: rgba(255,82,82,0.12); color: var(--red); }
+    .chip.fail .chip-dot { background: var(--red); }
+
+    /* Bandwidth cell */
+    .bw-cell {
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    /* Time cell */
+    .time-cell {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .empty-state::before {
+      content: '[ NO DATA ]';
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--border2);
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-bar .sep { opacity: 0.3; }
+
+    .updated-at { color: var(--muted); }
+    .updated-at strong { color: var(--accent); }
+
+    /* Column visibility toggle */
+    .col-toggle-group {
+      display: flex;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .col-toggle {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: rgba(0,212,255,0.08);
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.06em;
+    }
+
+    .col-toggle.hidden-col {
+      background: transparent;
+      color: var(--muted);
+      border-color: var(--border);
+    }
+
+    /* hide column */
+    .hide-bw .col-bw { display: none; }
+    .hide-load .col-load { display: none; }
+    .hide-success .col-success { display: none; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <div>
+        <div class="logo-text">RASA&nbsp; Slices</div>
+        <div class="logo-sub">Network Slice Monitor</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <div class="header-clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- SUMMARY STATS -->
+    <div class="stats-row">
+      <div class="stat-card" style="--accent-color: var(--accent)">
+        <div class="stat-label">Total Slices</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-delta" id="stat-total-sub">Awaiting data…</div>
+      </div>
+      <div class="stat-card" style="--accent-color: var(--green)">
+        <div class="stat-label">Successful</div>
+        <div class="stat-value" id="stat-success" style="color: var(--green)">—</div>
+        <div class="stat-delta" id="stat-success-sub">—</div>
+      </div>
+      <div class="stat-card" style="--accent-color: var(--yellow)">
+        <div class="stat-label">Avg Load Ratio</div>
+        <div class="stat-value" id="stat-load">—<span>%</span></div>
+        <div class="stat-delta" id="stat-load-sub">—</div>
+      </div>
+      <div class="stat-card" style="--accent-color: var(--purple)">
+        <div class="stat-label">Total Bandwidth</div>
+        <div class="stat-value" id="stat-bw">—<span>Mbps</span></div>
+        <div class="stat-delta" id="stat-bw-sub">—</div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <span class="controls-label">Filter</span>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="ok">Healthy</button>
+        <button class="filter-btn" data-filter="warn">Degraded</button>
+        <button class="filter-btn" data-filter="fail">Failed</button>
+      </div>
+
+      <span class="controls-label" style="margin-left: 12px;">Columns</span>
+      <div class="col-toggle-group">
+        <button class="col-toggle" data-col="bw">Bandwidth</button>
+        <button class="col-toggle" data-col="load">Load</button>
+        <button class="col-toggle" data-col="success">Status</button>
+      </div>
+
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" placeholder="Search slice…" id="searchInput" />
+      </div>
+    </div>
+
+    <!-- DATA PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Slice Records</span>
+        <span class="panel-count">Showing <strong id="showing-count">0</strong> of <strong id="total-count">0</strong> entries</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th data-sort="name">Slice Name <span class="sort">↕</span></th>
+              <th class="col-load" data-sort="load">Load Ratio <span class="sort">↕</span></th>
+              <th class="col-success" data-sort="success">Status <span class="sort">↕</span></th>
+              <th class="col-bw" data-sort="bandwidth">Bandwidth <span class="sort">↕</span></th>
+              <th data-sort="time">Timestamp <span class="sort">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="5"><div class="empty-state">Connecting to stream…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <span>Last update: <span class="updated-at"><strong id="lastUpdate">—</strong></span></span>
+      <span class="sep">|</span>
+      <span>Refresh interval: <strong style="color:var(--text)">2s</strong></span>
+      <span class="sep">|</span>
+      <span id="conn-status" style="color: var(--muted)">● Disconnected</span>
+    </div>
+  </main>
+
+  <script>
+    /* ── CLOCK ── */
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    /* ── STATE ── */
+    let allData    = [];
+    let activeFilter = 'all';
+    let searchQuery  = '';
+    let sortKey      = null;
+    let sortDir      = 1;
+    let hiddenCols   = new Set();
+
+    /* ── SLICE COLORS ── */
+    const sliceColors = ['#00d4ff','#00e676','#ffd740','#b388ff','#ff6e40','#64ffda','#f48fb1','#80cbc4'];
+    const colorMap = {};
+    let colorIdx = 0;
+    function getColor(name) {
+      if (!colorMap[name]) colorMap[name] = sliceColors[colorIdx++ % sliceColors.length];
+      return colorMap[name];
+    }
+
+    /* ── STATUS HELPERS ── */
+    function successChip(val) {
+      if (val === true || val === 1 || val === 'true' || val === 'True') {
+        return `<span class="chip ok"><span class="chip-dot"></span>SUCCESS</span>`;
+      } else if (val === false || val === 0 || val === 'false' || val === 'False') {
+        return `<span class="chip fail"><span class="chip-dot"></span>FAILED</span>`;
+      }
+      return `<span class="chip warn"><span class="chip-dot"></span>PARTIAL</span>`;
+    }
+
+    function loadColor(v) {
+      if (v >= 0.8) return 'var(--red)';
+      if (v >= 0.5) return 'var(--yellow)';
+      return 'var(--green)';
+    }
+
+    function chipClass(row) {
+      const s = row.success;
+      if (s === true || s === 1 || s === 'true' || s === 'True') return 'ok';
+      if (s === false || s === 0 || s === 'false' || s === 'False') return 'fail';
+      return 'warn';
+    }
+
+    function formatBw(v) {
+      if (v == null) return '<span style="color:var(--muted)">—</span>';
+      const n = parseFloat(v);
+      if (n >= 1000) return `<span style="color:var(--purple)">${(n/1000).toFixed(2)}<span style="color:var(--muted);font-size:11px"> Gbps</span></span>`;
+      return `<span style="color:var(--purple)">${n.toFixed(1)}<span style="color:var(--muted);font-size:11px"> Mbps</span></span>`;
+    }
+
+    function formatTime(t) {
+      if (!t) return '—';
+      try {
+        return new Date(t).toLocaleTimeString('en-GB', { hour12: false });
+      } catch { return t; }
+    }
+
+    /* ── FILTER & RENDER ── */
+    function filtered() {
+      return allData.filter(row => {
+        const cls = chipClass(row);
+        if (activeFilter !== 'all' && cls !== activeFilter) return false;
+        if (searchQuery && !String(row.name || '').toLowerCase().includes(searchQuery)) return false;
+        return true;
+      });
+    }
+
+    function sorted(rows) {
+      if (!sortKey) return rows;
+      return [...rows].sort((a, b) => {
+        let av = a[sortKey], bv = b[sortKey];
+        if (typeof av === 'string') av = av.toLowerCase();
+        if (typeof bv === 'string') bv = bv.toLowerCase();
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    function render() {
+      const rows = sorted(filtered());
+      const tbody = document.getElementById('tableBody');
+
+      document.getElementById('showing-count').textContent = rows.length;
+      document.getElementById('total-count').textContent   = allData.length;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">No matching slices found</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map((row, i) => {
+        const color = getColor(row.name || '?');
+        const load  = parseFloat(row.load) || 0;
+        const pct   = Math.min(100, Math.round(load * 100));
+
+        return `
+          <tr style="animation-delay:${i * 0.03}s">
+            <td>
+              <div class="slice-name">
+                <div class="slice-dot" style="background:${color};box-shadow:0 0 6px ${color}55;"></div>
+                ${row.name || '—'}
+              </div>
+            </td>
+            <td class="load-cell col-load">
+              <div class="load-bar-wrap">
+                <span class="load-label" style="color:${loadColor(load)}">${pct}%</span>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${pct}%;background:${loadColor(load)};"></div>
+                </div>
+              </div>
+            </td>
+            <td class="col-success">${successChip(row.success)}</td>
+            <td class="col-bw bw-cell">${formatBw(row.bandwidth)}</td>
+            <td class="time-cell">${formatTime(row.time)}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    /* ── SUMMARY STATS ── */
+    function updateStats(data) {
+      const total   = data.length;
+      const success = data.filter(r => chipClass(r) === 'ok').length;
+      const loads   = data.map(r => parseFloat(r.load) || 0);
+      const avgLoad = loads.length ? loads.reduce((a,b) => a+b, 0) / loads.length : 0;
+      const bws     = data.map(r => parseFloat(r.bandwidth) || 0);
+      const totalBw = bws.reduce((a,b) => a+b, 0);
+
+      document.getElementById('stat-total').textContent      = total;
+      document.getElementById('stat-total-sub').textContent  = `${total} slices tracked`;
+      document.getElementById('stat-success').textContent    = success;
+      document.getElementById('stat-success-sub').textContent = `${total - success} failed / degraded`;
+      document.getElementById('stat-load').innerHTML         = `${Math.round(avgLoad*100)}<span>%</span>`;
+      document.getElementById('stat-load-sub').textContent   = 'Average across all slices';
+      document.getElementById('stat-bw').innerHTML           = `${totalBw.toFixed(0)}<span>Mbps</span>`;
+      document.getElementById('stat-bw-sub').textContent     = 'Aggregate used bandwidth';
+    }
+
+    /* ── SOCKET ── */
+    const socket = io();
+
+    socket.on('connect', () => {
+      document.getElementById('conn-status').textContent = '● Connected';
+      document.getElementById('conn-status').style.color = 'var(--green)';
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('conn-status').textContent = '● Disconnected';
+      document.getElementById('conn-status').style.color = 'var(--red)';
+    });
+
+    socket.on('update', data => {
+      allData = data;
+      updateStats(data);
+      render();
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB');
+    });
+
+    /* ── FILTER BUTTONS ── */
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    /* ── COLUMN TOGGLES ── */
+    document.querySelectorAll('.col-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const col = btn.dataset.col;
+        if (hiddenCols.has(col)) {
+          hiddenCols.delete(col);
+          btn.classList.remove('hidden-col');
+          document.getElementById('dataTable').classList.remove(`hide-${col}`);
+        } else {
+          hiddenCols.add(col);
+          btn.classList.add('hidden-col');
+          document.getElementById('dataTable').classList.add(`hide-${col}`);
+        }
+      });
+    });
+
+    /* ── SEARCH ── */
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      render();
+    });
+
+    /* ── SORT ── */
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) sortDir *= -1;
+        else { sortKey = key; sortDir = 1; }
+        document.querySelectorAll('th').forEach(t => t.classList.remove('sorted'));
+        th.classList.add('sorted');
+        th.querySelector('.sort').textContent = sortDir === 1 ? '↑' : '↓';
+        render();
+      });
+    });
+
+    /* ── DEMO DATA (for preview without server) ── */
+    if (typeof io === 'undefined' || !socket.connected) {
+      setTimeout(() => {
+        const demo = [
+          { name: 'eMBB-Slice-01', load: 0.82, success: true,  bandwidth: 1240, time: new Date().toISOString() },
+          { name: 'URLLC-Core-A',  load: 0.31, success: true,  bandwidth: 340,  time: new Date().toISOString() },
+          { name: 'mMTC-Zone-B',   load: 0.64, success: false, bandwidth: 780,  time: new Date().toISOString() },
+          { name: 'V2X-Slice-02',  load: 0.91, success: false, bandwidth: 95,   time: new Date().toISOString() },
+          { name: 'IoT-Batch-03',  load: 0.44, success: true,  bandwidth: 512,  time: new Date().toISOString() },
+          { name: 'eMBB-Slice-02', load: 0.55, success: true,  bandwidth: 920,  time: new Date().toISOString() },
+          { name: 'MEC-Edge-01',   load: 0.78, success: null,  bandwidth: 430,  time: new Date().toISOString() },
+        ];
+        allData = demo;
+        updateStats(demo);
+        render();
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB');
+        document.getElementById('conn-status').textContent = '● Preview Mode';
+        document.getElementById('conn-status').style.color = 'var(--yellow)';
+      }, 800);
+    }
+  </script>
+</body>
+</html>
